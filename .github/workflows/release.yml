@@ -93,9 +93,9 @@ jobs:
           cd rust
           cargo build --release
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp target/release/rdw-server.exe ../${{ matrix.asset_name }}
+            cp target/release/mcp-rdw-server-rust.exe ../${{ matrix.asset_name }}
           else
-            cp target/release/rdw-server ../${{ matrix.asset_name }}
+            cp target/release/mcp-rdw-server-rust ../${{ matrix.asset_name }}
           fi
         shell: bash
 

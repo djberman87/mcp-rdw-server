@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/metoro-io/mcp-golang"
+	"github.com/metoro-io/mcp-golang/server"
 )
 
 const RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json"
@@ -23,9 +23,9 @@ type VehicleArgs struct {
 }
 
 func main() {
-	s := server.NewServer("rdw-server-go", "1.2.2")
+	s := server.NewServer("rdw-server-go", "1.2.3")
 
-	s.RegisterTool("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
+	if err := s.RegisterTool("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
 		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))
 		kenteken = strings.ReplaceAll(kenteken, " ", "")
 
@@ -55,9 +55,11 @@ func main() {
 
 		prettyJSON, _ := json.MarshalIndent(data[0], "", "  ")
 		return string(prettyJSON), nil
-	})
+	}); err != nil {
+		panic(err)
+	}
 
-	s.RegisterTool("get_vehicle_axles", "Haal informatie op over de assen van een voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
+	if err := s.RegisterTool("get_vehicle_axles", "Haal informatie op over de assen van een voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
 		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))
 		kenteken = strings.ReplaceAll(kenteken, " ", "")
 
@@ -87,9 +89,7 @@ func main() {
 
 		prettyJSON, _ := json.MarshalIndent(data, "", "  ")
 		return string(prettyJSON), nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		panic(err)
 	}
 
