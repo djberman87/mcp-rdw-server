@@ -1,0 +1,79 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create_release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_binaries:
+    name: Build Binaries
+    needs: create_release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: rdw-server
+            asset_name: rdw-server-linux
+          - os: windows-latest
+            artifact_name: rdw-server.exe
+            asset_name: rdw-server-windows.exe
+          - os: macos-latest
+            artifact_name: rdw-server
+            asset_name: rdw-server-macos
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Build Go
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Build Go Binary
+        run: |
+          cd go
+          go build -o ../${{ matrix.asset_name }}-go main.go
+
+      # Build Rust
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Binary
+        run: |
+          cd rust
+          cargo build --release
+          cp target/release/rdw-server ../${{ matrix.asset_name }}-rust || cp target/release/rdw-server.exe ../${{ matrix.asset_name }}-rust.exe
+
+      - name: Upload Binaries to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *-go
+            *-rust*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
