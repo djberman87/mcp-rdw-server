@@ -24,16 +24,16 @@ Met deze server kan een LLM (zoals Claude) technische details van voertuigen opv
 
 ## 🚀 Ondersteunde Talen & Runtimes
 
-Dit project is een **polyglot showcase**. Kies de taal die het beste past bij jouw omgeving:
+Dit project is een **polyglot showcase**. Kies de taal die het beste past bij jouw omgeving. Voor Go, Rust en .NET zijn **kant-en-klare binaries** beschikbaar bij de [Releases](https://github.com/djberman87/mcp-rdw-server/releases).
 
-| Taal | Runtime/Manager | Locatie | Setup |
+| Taal | Runtime/Manager | Locatie | Setup / Binary |
 | :--- | :--- | :--- | :--- |
 | 🐍 **Python** | Python 3.10+ | [`/python`](./python) | `pip install -r requirements.txt` |
 | 🟢 **Node.js** | Node 18+ | [`/nodejs`](./nodejs) | `npm install` |
 | 🔵 **TypeScript** | Node 18+ | [`/typescript`](./typescript) | `npm install && npm run build` |
-| 🐹 **Go** | Go 1.21+ | [`/go`](./go) | `go mod download` |
-| 🦀 **Rust** | Rust 1.75+ | [`/rust`](./rust) | `cargo build --release` |
-| 🏢 **C#** | .NET 8.0 | [`/dotnet`](./dotnet) | `dotnet build` |
+| 🐹 **Go** | Go 1.21+ | [`/go`](./go) | `go mod download` of **Binary** |
+| 🦀 **Rust** | Rust 1.75+ | [`/rust`](./rust) | `cargo build --release` of **Binary** |
+| 🏢 **C#** | .NET 8.0 | [`/dotnet`](./dotnet) | `dotnet build` of **Binary** |
 | ☕ **Java** | Maven / JDK 17 | [`/java`](./java) | `mvn clean package` |
 | 🐘 **PHP** | PHP 8.1+ | [`/php`](./php) | `composer install` |
 

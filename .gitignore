@@ -1,10 +1,11 @@
-# Generic
+# Generic & IDEs
 node_modules/
 dist/
 build/
 bin/
 obj/
 target/
+publish/
 .venv/
 venv/
 __pycache__/
@@ -14,11 +15,16 @@ __pycache__/
 *.so
 *.dylib
 .DS_Store
+.vscode/
+.idea/
+*.swp
+*.bak
 
 # Python
 .pytest_cache/
 .mypy_cache/
 *.pyc
+.python-version
 
 # Rust
 /rust/target/
@@ -26,13 +32,19 @@ __pycache__/
 
 # Go
 /go/go.sum
+rdw-server-*
 
 # .NET
 /dotnet/bin/
 /dotnet/obj/
+*.user
+*.suo
 
 # Java
 /java/target/
+.classpath
+.project
+.settings/
 
 # PHP
 /php/vendor/

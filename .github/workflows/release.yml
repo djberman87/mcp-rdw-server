@@ -64,6 +64,49 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build_dotnet:
+    name: Build .NET Binaries
+    needs: create_release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            asset_name: rdw-server-linux-dotnet
+          - os: windows-latest
+            asset_name: rdw-server-windows-dotnet.exe
+          - os: macos-latest
+            asset_name: rdw-server-macos-dotnet
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Build Binary
+        run: |
+          cd dotnet
+          dotnet publish -c Release -r ${{ matrix.os == 'ubuntu-latest' && 'linux-x64' || (matrix.os == 'windows-latest' && 'win-x64' || 'osx-arm64') }} --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ../publish
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp ../publish/RDWMcpServer.exe ../${{ matrix.asset_name }}
+          else
+            cp ../publish/RDWMcpServer ../${{ matrix.asset_name }}
+          fi
+        shell: bash
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build_rust:
     name: Build Rust Binaries
     needs: create_release
