@@ -1,52 +1,48 @@
-# RDW MCP Server
+# RDW MCP Server (Python Versie)
 
-Een Model Context Protocol (MCP) server voor het ophalen van voertuiggegevens via de RDW Open Data API.
-
-## Mogelijkheden
-
-- **get_vehicle_info**: Haal uitgebreide informatie op over een voertuig op basis van het kenteken.
+Een Python-implementatie van de Model Context Protocol (MCP) server voor de RDW Open Data API.
 
 ## Installatie
 
-### 1. Kloon de repository
+### 1. Kloon de repository en ga naar de Python branch
 
 ```bash
 git clone https://github.com/djberman87/mcp-rdw-server.git
 cd mcp-rdw-server
+git checkout python-version
 ```
 
-### 2. Installeer afhankelijkheden
+### 2. Maak een virtual environment en installeer afhankelijkheden
 
 ```bash
-npm install
+python -m venv venv
+source venv/bin/activate  # Op Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
 ### 3. Configureren in Gemini CLI
 
-Voeg de volgende configuratie toe aan je Gemini CLI extensies (meestal in `~/.gemini/extensions/rdw/gemini-extension.json` of een vergelijkbare locatie):
+Voeg de volgende configuratie toe aan je Gemini CLI extensies:
 
 ```json
 {
-  "name": "rdw",
+  "name": "rdw-python",
   "version": "1.0.0",
   "mcpServers": {
     "rdw": {
-      "description": "Zoek kentekengegevens op via de RDW Open Data API.",
-      "command": "node",
-      "args": ["/PAD/NAAR/mcp-rdw-server/index.js"]
+      "description": "Zoek kentekengegevens op via de RDW Open Data API (Python).",
+      "command": "python",
+      "args": ["/PAD/NAAR/mcp-rdw-server/server.py"]
     }
   }
 }
 ```
 
-*Vervang `/PAD/NAAR/` door het daadwerkelijke pad naar de gedownloade map.*
+*Let op: Als je een virtual environment gebruikt, vervang `python` dan door het volledige pad naar het python-executable in je `venv/bin/` map.*
 
 ## Gebruik
 
-Zodra de server actief is in Gemini CLI, kun je simpelweg vragen om voertuiggegevens:
-
-- "Wat zijn de gegevens van kenteken 41-TDK-8?"
-- "Zoek kenteken MXXG82 op."
+De werking is identiek aan de JavaScript-versie.
 
 ## Licentie
 
