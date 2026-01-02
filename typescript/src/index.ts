@@ -15,7 +15,7 @@ import fetch from "node-fetch";
 const server = new Server(
   {
     name: "rdw-server-ts",
-    version: "1.2.3",
+    version: "1.2.4",
   },
   {
     capabilities: {
