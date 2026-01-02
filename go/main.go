@@ -23,7 +23,7 @@ type VehicleArgs struct {
 }
 
 func main() {
-	s := server.NewServer("rdw-server-go", "1.2.0")
+	s := server.NewServer("rdw-server-go", "1.2.1")
 
 	s.RegisterTool("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
 		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))

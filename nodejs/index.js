@@ -12,7 +12,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const server = new Server(
   {
     name: "rdw-server",
-    version: "1.2.0",
+    version: "1.2.1",
   },
   {
     capabilities: {
