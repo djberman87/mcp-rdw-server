@@ -8,7 +8,7 @@ use std::error::Error;
 use std::io::{self, BufRead};
 
 #[derive(Deserialize)]
-struct GetVehicleInfoArgs {
+struct VehicleArgs {
     kenteken: String,
 }
 
@@ -40,12 +40,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 },
                                 "required": ["kenteken"]
                             }
+                        },
+                        {
+                            "name": "get_vehicle_axles",
+                            "description": "Haal informatie op over de assen van een voertuig op basis van het kenteken.",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "kenteken": {
+                                        "type": "string",
+                                        "description": "Het kenteken van het voertuig (bijv. '41TDK8')."
+                                    }
+                                },
+                                "required": ["kenteken"]
+                            }
                         }
                     ]
                 }
             });
             println!("{}", response);
-        } else if request["method"] == "call_tool" && request["params"]["name"] == "get_vehicle_info" {
+        } else if request["method"] == "call_tool" {
+            let tool_name = request["params"]["name"].as_str().unwrap_or("");
             let kenteken = request["params"]["arguments"]["kenteken"]
                 .as_str()
                 .unwrap_or("")
@@ -53,14 +68,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .replace("-", "")
                 .replace(" ", "");
 
-            let url = format!("https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken={}", kenteken);
+            let (url, is_axles) = match tool_name {
+                "get_vehicle_info" => (format!("https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken={}", kenteken), false),
+                "get_vehicle_axles" => (format!("https://opendata.rdw.nl/resource/3huj-srit.json?kenteken={}", kenteken), true),
+                _ => continue,
+            };
+
             let client = reqwest::Client::new();
             let res = client.get(url).send().await?.json::<Vec<serde_json::Value>>().await?;
 
             let content = if res.is_empty() {
-                format!("Geen voertuig gevonden voor kenteken: {}", kenteken)
+                if is_axles {
+                    format!("Geen as-informatie gevonden voor kenteken: {}. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.", kenteken)
+                } else {
+                    format!("Geen voertuig gevonden voor kenteken: {}", kenteken)
+                }
             } else {
-                serde_json::to_string_pretty(&res[0])?
+                if is_axles {
+                    serde_json::to_string_pretty(&res)?
+                } else {
+                    serde_json::to_string_pretty(&res[0])?
+                }
             };
 
             let response = serde_json::json!({

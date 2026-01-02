@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 public class McpServer {
     private static final String RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json";
+    private static final String RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static void main(String[] args) {
@@ -28,11 +29,14 @@ public class McpServer {
                     sendResponse(id, createListToolsResult());
                 } else if ("call_tool".equals(method)) {
                     String toolName = request.get("params").getAsJsonObject().get("name").getAsString();
+                    String kenteken = request.get("params").getAsJsonObject()
+                            .get("arguments").getAsJsonObject()
+                            .get("kenteken").getAsString();
+                    
                     if ("get_vehicle_info".equals(toolName)) {
-                        String kenteken = request.get("params").getAsJsonObject()
-                                .get("arguments").getAsJsonObject()
-                                .get("kenteken").getAsString();
-                        handleGetVehicleInfo(id, kenteken);
+                        handleRequest(id, toolName, kenteken, RDW_API_ENDPOINT);
+                    } else if ("get_vehicle_axles".equals(toolName)) {
+                        handleRequest(id, toolName, kenteken, RDW_AXLES_API_ENDPOINT);
                     }
                 }
             } catch (Exception e) {
@@ -41,9 +45,9 @@ public class McpServer {
         }
     }
 
-    private static void handleGetVehicleInfo(JsonElement id, String kenteken) throws Exception {
+    private static void handleRequest(JsonElement id, String toolName, String kenteken, String endpoint) throws Exception {
         String cleanKenteken = kenteken.toUpperCase().replace("-", "").replace(" ", "");
-        URL url = new URL(RDW_API_ENDPOINT + "?kenteken=" + cleanKenteken);
+        URL url = new URL(endpoint + "?kenteken=" + cleanKenteken);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
 
@@ -53,9 +57,11 @@ public class McpServer {
 
         String content;
         if (data.size() > 0) {
-            content = gson.toJson(data.get(0));
+            content = "get_vehicle_info".equals(toolName) ? gson.toJson(data.get(0)) : gson.toJson(data);
         } else {
-            content = "Geen voertuig gevonden voor kenteken: " + cleanKenteken;
+            content = "get_vehicle_info".equals(toolName) 
+                ? "Geen voertuig gevonden voor kenteken: " + cleanKenteken
+                : "Geen as-informatie gevonden voor kenteken: " + cleanKenteken + ". Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.";
         }
 
         JsonObject responseResult = new JsonObject();
@@ -72,9 +78,18 @@ public class McpServer {
     private static JsonObject createListToolsResult() {
         JsonObject result = new JsonObject();
         JsonArray tools = new JsonArray();
+        
+        tools.add(createToolObject("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken."));
+        tools.add(createToolObject("get_vehicle_axles", "Haal informatie op over de assen van een voertuig op basis van het kenteken."));
+        
+        result.add("tools", tools);
+        return result;
+    }
+
+    private static JsonObject createToolObject(String name, String description) {
         JsonObject tool = new JsonObject();
-        tool.addProperty("name", "get_vehicle_info");
-        tool.addProperty("description", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.");
+        tool.addProperty("name", name);
+        tool.addProperty("description", description);
         
         JsonObject schema = new JsonObject();
         schema.addProperty("type", "object");
@@ -89,9 +104,7 @@ public class McpServer {
         schema.add("required", required);
         
         tool.add("inputSchema", schema);
-        tools.add(tool);
-        result.add("tools", tools);
-        return result;
+        return tool;
     }
 
     private static void sendResponse(JsonElement id, JsonObject result) {

@@ -16,6 +16,9 @@ Met deze server kan een LLM (zoals Claude) technische details van voertuigen opv
 - `get_vehicle_info`: Haal gedetailleerde technische informatie op van elk Nederlands voertuig (auto's, motoren, vrachtwagens, etc.).
   - **Input:** Kenteken (bijv. `41TDK8`, `41-TDK-8`, `MX-XG-82`).
   - **Normalisatie:** Tekens worden automatisch omgezet naar hoofdletters en streepjes/spaties worden verwijderd.
+- `get_vehicle_axles`: Haal gedetailleerde informatie op over de assen van een voertuig (aantal assen, aslast, aangedreven assen).
+  - **Input:** Kenteken.
+  - **Dataset:** Specifiek gericht op de as-configuratie van zwaardere voertuigen en aanhangers.
 
 ---
 
@@ -73,7 +76,8 @@ Voeg de server toe aan je `claude_desktop_config.json`. Vervang `<PATH_TO_REPO>`
 ## 📊 RDW Open Data
 Deze server maakt uitsluitend gebruik van de **officiële openbare RDW API**. Er is **geen API-key** nodig voor basisgebruik.
 
-- **Endpoint:** `https://opendata.rdw.nl/resource/m9d7-ebf2.json`
+- **Basis Dataset:** `https://opendata.rdw.nl/resource/m9d7-ebf2.json` (Gekentekende voertuigen)
+- **Assen Dataset:** `https://opendata.rdw.nl/resource/3huj-srit.json` (Gekentekende voertuigen assen)
 - **Documentatie:** [RDW Open Data Portal](https://opendata.rdw.nl/)
 
 ---

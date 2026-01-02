@@ -15,6 +15,7 @@ class Program
 {
     private static readonly HttpClient client = new HttpClient();
     private const string RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json";
+    private const string RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json";
 
     static async Task Main(string[] args)
     {
@@ -51,29 +52,56 @@ class Program
                                         },
                                         required = new[] { "kenteken" }
                                     }
+                                },
+                                new
+                                {
+                                    name = "get_vehicle_axles",
+                                    description = "Haal informatie op over de assen van een voertuig op basis van het kenteken.",
+                                    inputSchema = new
+                                    {
+                                        type = "object",
+                                        properties = new
+                                        {
+                                            kenteken = new { type = "string", description = "Het kenteken van het voertuig (bijv. '41TDK8')." }
+                                        },
+                                        required = new[] { "kenteken" }
+                                    }
                                 }
                             }
                         }
                     };
                     Console.WriteLine(JsonSerializer.Serialize(response));
                 }
-                else if (method == "call_tool" && root.GetProperty("params").GetProperty("name").GetString() == "get_vehicle_info")
+                else if (method == "call_tool")
                 {
+                    var toolName = root.GetProperty("params").GetProperty("name").GetString();
                     var kenteken = root.GetProperty("params").GetProperty("arguments").GetProperty("kenteken").GetString() ?? "";
                     kenteken = kenteken.ToUpper().Replace("-", "").Replace(" ", "");
 
-                    var httpResponse = await client.GetAsync($"{RDW_API_ENDPOINT}?kenteken={kenteken}");
+                    string apiUrl = toolName switch {
+                        "get_vehicle_info" => $"{RDW_API_ENDPOINT}?kenteken={kenteken}",
+                        "get_vehicle_axles" => $"{RDW_AXLES_API_ENDPOINT}?kenteken={kenteken}",
+                        _ => ""
+                    };
+
+                    if (string.IsNullOrEmpty(apiUrl)) continue;
+
+                    var httpResponse = await client.GetAsync(apiUrl);
                     var body = await httpResponse.Content.ReadAsStringAsync();
                     var data = JsonSerializer.Deserialize<JsonElement>(body);
 
                     string content;
                     if (data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0)
                     {
-                        content = JsonSerializer.Serialize(data[0], new JsonSerializerOptions { WriteIndented = true });
+                        content = toolName == "get_vehicle_info" 
+                            ? JsonSerializer.Serialize(data[0], new JsonSerializerOptions { WriteIndented = true })
+                            : JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                     }
                     else
                     {
-                        content = $"Geen voertuig gevonden voor kenteken: {kenteken}";
+                        content = toolName == "get_vehicle_info"
+                            ? $"Geen voertuig gevonden voor kenteken: {kenteken}"
+                            : $"Geen as-informatie gevonden voor kenteken: {kenteken}. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.";
                     }
 
                     var response = new
