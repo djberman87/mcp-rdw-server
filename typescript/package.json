@@ -1,6 +1,6 @@
 {
   "name": "rdw-typescript",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "TypeScript MCP server for retrieving Dutch vehicle information from RDW Open Data API.",
   "main": "build/index.js",
   "scripts": {

@@ -92,7 +92,7 @@ jobs:
       - name: Build Binary
         run: |
           cd dotnet
-          dotnet publish -c Release -r ${{ matrix.os == 'ubuntu-latest' && 'linux-x64' || (matrix.os == 'windows-latest' && 'win-x64' || 'osx-arm64') }} --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ../publish
+          dotnet publish -c Release -r ${{ matrix.os == 'ubuntu-latest' && 'linux-x64' || (matrix.os == 'windows-latest' && 'win-x64' || 'osx-arm64') }} --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -o ../publish
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             cp ../publish/RDWMcpServer.exe ../${{ matrix.asset_name }}
           else
