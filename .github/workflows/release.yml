@@ -12,8 +12,6 @@ jobs:
   create_release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,8 +27,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build_binaries:
-    name: Build Binaries
+  build_go:
+    name: Build Go Binaries
     needs: create_release
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,51 +37,71 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: rdw-server
-            asset_name: rdw-server-linux
+            asset_name: rdw-server-linux-go
           - os: windows-latest
-            artifact_name: rdw-server.exe
-            asset_name: rdw-server-windows.exe
+            asset_name: rdw-server-windows-go.exe
           - os: macos-latest
-            artifact_name: rdw-server
-            asset_name: rdw-server-macos
+            asset_name: rdw-server-macos-go
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Build Go
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
       
-      - name: Build Go Binary
+      - name: Build Binary
         run: |
           cd go
           go mod tidy
-          go build -o ../${{ matrix.asset_name }}-go main.go
+          go build -o ../${{ matrix.asset_name }} main.go
 
-      # Build Rust
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_rust:
+    name: Build Rust Binaries
+    needs: create_release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            asset_name: rdw-server-linux-rust
+          - os: windows-latest
+            asset_name: rdw-server-windows-rust.exe
+          - os: macos-latest
+            asset_name: rdw-server-macos-rust
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build Rust Binary
+      - name: Build Binary
         run: |
           cd rust
           cargo build --release
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp target/release/rdw-server.exe ../${{ matrix.asset_name }}-rust.exe
+            cp target/release/rdw-server.exe ../${{ matrix.asset_name }}
           else
-            cp target/release/rdw-server ../${{ matrix.asset_name }}-rust
+            cp target/release/rdw-server ../${{ matrix.asset_name }}
           fi
         shell: bash
 
-      - name: Upload Binaries to Release
+      - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            *-go
-            *-rust*
+          files: ${{ matrix.asset_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

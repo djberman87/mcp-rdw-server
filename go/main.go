@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/metoro-io/mcp-golang/server"
+	"github.com/metoro-io/mcp-golang"
 )
 
 const RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json"
@@ -23,7 +23,7 @@ type VehicleArgs struct {
 }
 
 func main() {
-	s := server.NewServer("rdw-server-go", "1.2.1")
+	s := server.NewServer("rdw-server-go", "1.2.2")
 
 	s.RegisterTool("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
 		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))
