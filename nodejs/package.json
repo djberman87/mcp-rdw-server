@@ -1,14 +1,20 @@
 {
   "name": "rdw",
   "version": "1.0.0",
-  "description": "MCP server for retrieving vehicle information from the Dutch RDW Open Data API.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "keywords": ["mcp", "rdw", "kenteken", "netherlands"],
-  "author": "",
-  "license": "ISC",
+    "description": "Node.js MCP server for retrieving Dutch vehicle information from RDW Open Data API.",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "keywords": [
+      "mcp",
+      "rdw",
+      "kenteken",
+      "netherlands"
+    ],
+    "author": "Dirk-Jan Berman & Gemini 3",
+    "license": "MIT",
+  
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",

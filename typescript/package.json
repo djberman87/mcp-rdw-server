@@ -1,14 +1,15 @@
 {
   "name": "rdw-typescript",
   "version": "1.0.0",
-  "description": "TypeScript MCP server for RDW data",
+  "description": "TypeScript MCP server for retrieving Dutch vehicle information from RDW Open Data API.",
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",
     "dev": "ts-node src/index.ts"
   },
-  "dependencies": {
+  "author": "Dirk-Jan Berman & Gemini 3",
+  "license": "MIT",
     "@modelcontextprotocol/sdk": "^1.25.1",
     "node-fetch": "^3.3.2"
   },

@@ -1,3 +1,9 @@
+/**
+ * RDW Vehicle Info MCP Server (TypeScript)
+ * Authors: Dirk-Jan Berman & Gemini 3
+ * License: MIT
+ */
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -9,7 +15,7 @@ import fetch from "node-fetch";
 const server = new Server(
   {
     name: "rdw-server-ts",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
@@ -25,13 +31,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "get_vehicle_info",
-        description: "Haal informatie op over een voertuig op basis van het kenteken (RDW Open Data).",
+        description: "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.",
         inputSchema: {
           type: "object",
           properties: {
             kenteken: {
               type: "string",
-              description: "Het kenteken van het voertuig (bijv. 41TDK8 of 41-TDK-8).",
+              description: "Het kenteken van het voertuig (bijv. '41TDK8', '41-TDK-8'). Tekens worden automatisch genormaliseerd.",
             },
           },
           required: ["kenteken"],
@@ -44,12 +50,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === "get_vehicle_info") {
     const args = request.params.arguments as { kenteken: string };
-    const kenteken = args.kenteken.toUpperCase().replace(/-/g, "");
+    const kenteken = args.kenteken.toUpperCase().replace(/[-\s]/g, "");
     
     try {
       const response = await fetch(`${RDW_API_ENDPOINT}?kenteken=${kenteken}`);
       if (!response.ok) {
-        throw new Error(`RDW API error: ${response.statusText}`);
+        throw new Error(`RDW API error: ${response.status} ${response.statusText}`);
       }
       
       const data = (await response.json()) as any[];
@@ -59,7 +65,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: "text",
-              text: `Geen voertuig gevonden met kenteken: ${kenteken}`,
+              text: `Geen voertuig gevonden voor kenteken: ${kenteken}`,
             },
           ],
         };

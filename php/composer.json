@@ -1,0 +1,14 @@
+{
+    "name": "rdw/mcp-server",
+    "description": "PHP MCP server for RDW data",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rdw\": "src/"
+        }
+    }
+}

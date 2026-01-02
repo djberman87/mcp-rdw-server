@@ -1,10 +1,39 @@
+# Generic
 node_modules/
-build/
 dist/
-*.log
-.DS_Store
-__pycache__/
-*.pyc
-.env
-venv/
+build/
+bin/
+obj/
+target/
 .venv/
+venv/
+__pycache__/
+*.log
+*.exe
+*.dll
+*.so
+*.dylib
+.DS_Store
+
+# Python
+.pytest_cache/
+.mypy_cache/
+*.pyc
+
+# Rust
+/rust/target/
+/rust/Cargo.lock
+
+# Go
+/go/go.sum
+
+# .NET
+/dotnet/bin/
+/dotnet/obj/
+
+# Java
+/java/target/
+
+# PHP
+/php/vendor/
+/php/composer.lock
