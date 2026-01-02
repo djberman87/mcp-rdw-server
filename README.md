@@ -1,53 +1,41 @@
 # RDW MCP Server
 
-Een Model Context Protocol (MCP) server voor het ophalen van voertuiggegevens via de RDW Open Data API.
+MCP server voor het ophalen van voertuiggegevens van de Nederlandse RDW Open Data API.
 
-## Mogelijkheden
+Deze repository bevat implementaties in meerdere talen:
 
-- **get_vehicle_info**: Haal uitgebreide informatie op over een voertuig op basis van het kenteken.
+- [Python](./python) (Aanbevolen voor snelle setup met FastMCP)
+- [Node.js (JavaScript)](./nodejs)
+- [TypeScript](./typescript)
 
-## Installatie
+## Functionaliteit
 
-### 1. Kloon de repository
+### Tools
+- `get_vehicle_info`: Haal technische details op van een voertuig op basis van het kenteken.
 
+## Installatie & Gebruik
+
+### Python
 ```bash
-git clone https://github.com/djberman87/mcp-rdw-server.git
-cd mcp-rdw-server
+cd python
+pip install -r requirements.txt
+python server.py
 ```
 
-### 2. Installeer afhankelijkheden
-
+### Node.js (JavaScript)
 ```bash
+cd nodejs
 npm install
+npm start
 ```
 
-### 3. Configureren in Gemini CLI
-
-Voeg de volgende configuratie toe aan je Gemini CLI extensies (meestal in `~/.gemini/extensions/rdw/gemini-extension.json` of een vergelijkbare locatie):
-
-```json
-{
-  "name": "rdw",
-  "version": "1.0.0",
-  "mcpServers": {
-    "rdw": {
-      "description": "Zoek kentekengegevens op via de RDW Open Data API.",
-      "command": "node",
-      "args": ["/PAD/NAAR/mcp-rdw-server/index.js"]
-    }
-  }
-}
+### TypeScript
+```bash
+cd typescript
+npm install
+npm run build
+npm start
 ```
-
-*Vervang `/PAD/NAAR/` door het daadwerkelijke pad naar de gedownloade map.*
-
-## Gebruik
-
-Zodra de server actief is in Gemini CLI, kun je simpelweg vragen om voertuiggegevens:
-
-- "Wat zijn de gegevens van kenteken 41-TDK-8?"
-- "Zoek kenteken MXXG82 op."
 
 ## Licentie
-
 ISC
