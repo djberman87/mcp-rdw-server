@@ -1,6 +1,6 @@
 {
   "name": "rdw",
-  "version": "1.2.4",
+  "version": "1.2.5",
     "description": "Node.js MCP server for retrieving Dutch vehicle information from RDW Open Data API.",
     "main": "index.js",
     "scripts": {

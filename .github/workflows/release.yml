@@ -55,7 +55,6 @@ jobs:
       - name: Build Binary
         run: |
           cd go
-          go mod tidy
           go build -o ../${{ matrix.asset_name }} main.go
 
       - name: Upload to Release

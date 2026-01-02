@@ -6,94 +6,126 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
-
-	mcp "github.com/metoro-io/mcp-golang"
 )
 
 const RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json"
 const RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json"
 
-type VehicleArgs struct {
-	Kenteken string `json:"kenteken" jsonschema:"description=Het kenteken van het voertuig (bijv. 41TDK8 of 41-TDK-8)."`
+type Request struct {
+	JSONRPC string          `json:"jsonrpc"`
+	ID      interface{}     `json:"id"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params"`
+}
+
+type CallToolParams struct {
+	Name      string            `json:"name"`
+	Arguments map[string]string `json:"arguments"`
 }
 
 func main() {
-	s := mcp.NewServer("rdw-server-go", "1.2.4")
-
-	if err := s.RegisterTool("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
-		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))
-		kenteken = strings.ReplaceAll(kenteken, " ", "")
-
-		resp, err := http.Get(fmt.Sprintf("%s?kenteken=%s", RDW_API_ENDPOINT, kenteken))
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		line, err := reader.ReadString('\n')
 		if err != nil {
-			return "", fmt.Errorf("fout bij verbinden met RDW API: %w", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			return "", fmt.Errorf("RDW API fout: %s", resp.Status)
+			if err == io.EOF {
+				break
+			}
+			continue
 		}
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "", fmt.Errorf("fout bij lezen van RDW API response: %w", err)
+		var req Request
+		if err := json.Unmarshal([]byte(line), &req); err != nil {
+			continue
 		}
 
-		var data []map[string]interface{}
-		if err := json.Unmarshal(body, &data); err != nil {
-			return "", fmt.Errorf("fout bij parsen van JSON: %w", err)
-		}
+		if req.Method == "list_tools" {
+			sendResponse(req.ID, map[string]interface{}{
+				"tools": []map[string]interface{}{
+					{
+						"name":        "get_vehicle_info",
+						"description": "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.",
+						"inputSchema": map[string]interface{}{
+							"type": "object",
+							"properties": map[string]interface{}{
+								"kenteken": map[string]string{"type": "string", "description": "Het kenteken van het voertuig (bijv. '41TDK8')."},
+							},
+							"required": []string{"kenteken"},
+						},
+					},
+					{
+						"name":        "get_vehicle_axles",
+						"description": "Haal informatie op over de assen van een voertuig op basis van het kenteken.",
+						"inputSchema": map[string]interface{}{
+							"type": "object",
+							"properties": map[string]interface{}{
+								"kenteken": map[string]string{"type": "string", "description": "Het kenteken van het voertuig (bijv. '41TDK8')."},
+							},
+							"required": []string{"kenteken"},
+						},
+					},
+				},
+			})
+		} else if req.Method == "call_tool" {
+			var params CallToolParams
+			json.Unmarshal(req.Params, &params)
 
-		if len(data) == 0 {
-			return fmt.Sprintf("Geen voertuig gevonden voor kenteken: %s", kenteken), nil
-		}
+			kenteken := strings.ToUpper(strings.ReplaceAll(params.Arguments["kenteken"], "-", ""))
+			kenteken = strings.ReplaceAll(kenteken, " ", "")
 
-		prettyJSON, _ := json.MarshalIndent(data[0], "", "  ")
-		return string(prettyJSON), nil
-	}); err != nil {
-		panic(err)
+			endpoint := RDW_API_ENDPOINT
+			if params.Name == "get_vehicle_axles" {
+				endpoint = RDW_AXLES_API_ENDPOINT
+			}
+
+			resp, err := http.Get(fmt.Sprintf("%s?kenteken=%s", endpoint, kenteken))
+			var content string
+			if err != nil {
+				content = fmt.Sprintf("Fout bij verbinden met RDW: %v", err)
+			} else {
+				defer resp.Body.Close()
+				body, _ := io.ReadAll(resp.Body)
+				var data []interface{}
+				json.Unmarshal(body, &data)
+
+				if len(data) == 0 {
+					if params.Name == "get_vehicle_info" {
+						content = fmt.Sprintf("Geen voertuig gevonden voor kenteken: %s", kenteken)
+					} else {
+						content = fmt.Sprintf("Geen as-informatie gevonden voor kenteken: %s. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.", kenteken)
+					}
+				} else {
+					var result interface{} = data
+					if params.Name == "get_vehicle_info" {
+						result = data[0]
+					}
+					prettyJSON, _ := json.MarshalIndent(result, "", "  ")
+					content = string(prettyJSON)
+				}
+			}
+
+			sendResponse(req.ID, map[string]interface{}{
+				"content": []map[string]interface{}{
+					{"type": "text", "text": content},
+				},
+			})
+		}
 	}
+}
 
-	if err := s.RegisterTool("get_vehicle_axles", "Haal informatie op over de assen van een voertuig op basis van het kenteken.", func(args VehicleArgs) (string, error) {
-		kenteken := strings.ToUpper(strings.ReplaceAll(args.Kenteken, "-", ""))
-		kenteken = strings.ReplaceAll(kenteken, " ", "")
-
-		resp, err := http.Get(fmt.Sprintf("%s?kenteken=%s", RDW_AXLES_API_ENDPOINT, kenteken))
-		if err != nil {
-			return "", fmt.Errorf("fout bij verbinden met RDW API: %w", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			return "", fmt.Errorf("RDW API fout: %s", resp.Status)
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "", fmt.Errorf("fout bij lezen van RDW API response: %w", err)
-		}
-
-		var data []map[string]interface{}
-		if err := json.Unmarshal(body, &data); err != nil {
-			return "", fmt.Errorf("fout bij parsen van JSON: %w", err)
-		}
-
-		if len(data) == 0 {
-			return fmt.Sprintf("Geen as-informatie gevonden voor kenteken: %s. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.", kenteken), nil
-		}
-
-		prettyJSON, _ := json.MarshalIndent(data, "", "  ")
-		return string(prettyJSON), nil
-	}); err != nil {
-		panic(err)
+func sendResponse(id interface{}, result interface{}) {
+	resp := map[string]interface{}{
+		"jsonrpc": "2.0",
+		"id":      id,
+		"result":  result,
 	}
-
-	if err := s.ServeStdio(); err != nil {
-		panic(err)
-	}
+	out, _ := json.Marshal(resp)
+	fmt.Println(string(out))
 }
