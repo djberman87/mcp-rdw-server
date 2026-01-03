@@ -3,69 +3,63 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compliance](https://img.shields.io/badge/MCP-Compliant-blue.svg)](https://modelcontextprotocol.io)
 [![Polyglot](https://img.shields.io/badge/Polyglot-8%20Languages-green.svg)](#-ondersteunde-talen)
+[![Dutch Language](https://img.shields.io/badge/Taal-Nederlands-orange.svg)](#)
 
-Een krachtige **Model Context Protocol (MCP)** server die directe toegang biedt tot de openbare voertuiggegevens van de Nederlandse **RDW (Rijksdienst voor het Wegverkeer)**. 
+Een professionele **Model Context Protocol (MCP)** server die directe toegang biedt tot de openbare voertuiggegevens van de Nederlandse **RDW (Rijksdienst voor het Wegverkeer)**. 
 
-Met deze server kan een LLM (zoals Claude) technische details van voertuigen opvragen, zoals merk, model, APK-vervaldatum, brandstofverbruik en meer, puur op basis van een kenteken.
-
----
-
-## ✨ Functionaliteit
-
-### Tools
-- `get_vehicle_info`: Haal gedetailleerde technische informatie op van elk Nederlands voertuig (auto's, motoren, vrachtwagens, etc.).
-  - **Input:** Kenteken (bijv. `41TDK8`, `41-TDK-8`, `MX-XG-82`).
-  - **Normalisatie:** Tekens worden automatisch omgezet naar hoofdletters en streepjes/spaties worden verwijderd.
-- `get_vehicle_axles`: Haal gedetailleerde informatie op over de assen van een voertuig (aantal assen, aslast, aangedreven assen).
-  - **Input:** Kenteken.
-  - **Dataset:** Specifiek gericht op de as-configuratie van zwaardere voertuigen en aanhangers.
+Met deze server kan een LLM (zoals Claude) technische en administratieve details van voertuigen opvragen puur op basis van een kenteken. Ideaal voor automotive applicaties, verzekeringschecks of technische data-analyse.
 
 ---
 
-## 🚀 Ondersteunde Talen & Runtimes
+## ✨ Features
 
-Dit project is een **polyglot showcase**. Kies de taal die het beste past bij jouw omgeving. Voor Go, Rust en .NET zijn **kant-en-klare binaries** beschikbaar bij de [Releases](https://github.com/djberman87/mcp-rdw-server/releases).
+- **`get_vehicle_info`**: Haal uitgebreide data op (Merk, Model, APK, Brandstof, CO2, Massa, etc.).
+- **`get_vehicle_axles`**: Specifieke as-informatie (Aslast, Aangedreven assen), essentieel voor logistiek/vrachtverkeer.
+- **Slimme Normalisatie**: Kentekens zoals `41-TDK-8`, `41TDK8` of `mx xg 82` worden automatisch gecorrigeerd.
+- **Polyglot Implementatie**: Beschikbaar in 8 verschillende programmeertalen.
 
-| Taal | Runtime/Manager | Locatie | Setup / Binary |
+---
+
+## 🚀 Ondersteunde Talen & Setup
+
+Dit project is ontworpen om te laten zien hoe MCP werkt over diverse ecosystemen.
+
+| Taal | Directory | Setup Commando | Start Commando |
 | :--- | :--- | :--- | :--- |
-| 🐍 **Python** | Python 3.10+ | [`/python`](./python) | `pip install -r requirements.txt` |
-| 🟢 **Node.js** | Node 18+ | [`/nodejs`](./nodejs) | `npm install` |
-| 🔵 **TypeScript** | Node 18+ | [`/typescript`](./typescript) | `npm install && npm run build` |
-| 🐹 **Go** | Go 1.21+ | [`/go`](./go) | `go mod download` of **Binary** |
-| 🦀 **Rust** | Rust 1.75+ | [`/rust`](./rust) | `cargo build --release` of **Binary** |
-| 🏢 **C#** | .NET 8.0 | [`/dotnet`](./dotnet) | `dotnet build` of **Binary** |
-| ☕ **Java** | Maven / JDK 17 | [`/java`](./java) | `mvn clean package` |
-| 🐘 **PHP** | PHP 8.1+ | [`/php`](./php) | `composer install` |
+| 🐍 **Python** | `/python` | `pip install -r requirements.txt` | `python server.py` |
+| 🟢 **Node.js** | `/nodejs` | `npm install` | `node index.js` |
+| 🔵 **TypeScript** | `/typescript` | `npm install && npm run build` | `node build/index.js` |
+| 🐹 **Go** | `/go` | `go mod download` | `go run main.go` |
+| 🦀 **Rust** | `/rust` | `cargo build --release` | `./target/release/rust` |
+| 🏢 **C#** | `/dotnet` | `dotnet build` | `dotnet run` |
+| ☕ **Java** | `/java` | `mvn clean package` | `java -cp target/*.jar com.rdw.McpServer` |
+| 🐘 **PHP** | `/php` | `composer install` | `php server.php` |
 
 ---
 
-## 🛠️ Installatie & Configuratie
+## 🛠️ Configuratie voor Claude Desktop
 
-### 1. Voorbereiding
-Zorg dat de gekozen runtime is geïnstalleerd op je systeem.
+Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het absolute pad naar de repository.
 
-### 2. Claude Desktop Configuratie
-Voeg de server toe aan je `claude_desktop_config.json`. Vervang `<PATH_TO_REPO>` door het absolute pad naar deze repository.
-
-**Voorbeeld met Python (FastMCP):**
+### Voorbeeld (Python)
 ```json
 {
   "mcpServers": {
     "rdw-info": {
       "command": "python",
-      "args": ["<PATH_TO_REPO>/python/server.py"]
+      "args": ["/PAD/NAAR/REPO/python/server.py"]
     }
   }
 }
 ```
 
-**Voorbeeld met Node.js:**
+### Voorbeeld (Node.js)
 ```json
 {
   "mcpServers": {
     "rdw-info": {
       "command": "node",
-      "args": ["<PATH_TO_REPO>/nodejs/index.js"]
+      "args": ["/PAD/NAAR/REPO/nodejs/index.js"]
     }
   }
 }
@@ -73,22 +67,25 @@ Voeg de server toe aan je `claude_desktop_config.json`. Vervang `<PATH_TO_REPO>`
 
 ---
 
-## 📊 RDW Open Data
-Deze server maakt uitsluitend gebruik van de **officiële openbare RDW API**. Er is **geen API-key** nodig voor basisgebruik.
-
-- **Basis Dataset:** `https://opendata.rdw.nl/resource/m9d7-ebf2.json` (Gekentekende voertuigen)
-- **Assen Dataset:** `https://opendata.rdw.nl/resource/3huj-srit.json` (Gekentekende voertuigen assen)
-- **Documentatie:** [RDW Open Data Portal](https://opendata.rdw.nl/)
+## 💡 Voorbeeld Prompts
+Zodra de server actief is in Claude, kun je vragen stellen als:
+- *"Wat is de APK vervaldatum van het voertuig met kenteken 41-TDK-8?"*
+- *"Geef me de technische specificaties (gewicht, motor) van de 23-BGV-9."*
+- *"Is het voertuig MX-XG-82 een motor of een auto?"*
+- *"Hoeveel assen heeft de vrachtwagen met kenteken ... en wat is de maximale aslast?"*
 
 ---
 
-## 👨‍💻 Auteurs & Metadata
+## 📊 RDW Open Data
+Dit project maakt gebruik van de officiële Socrata API van de RDW.
+- **Hoofd Dataset:** [Open Data RDW: Gekentekende voertuigen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen/m9d7-ebf2)
+- **Assen Dataset:** [Open Data RDW: Gekentekende voertuigen assen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen-assen/3huj-srit)
+
+---
+
+## 👨‍💻 Auteurs & Credits
 - **Dirk-Jan Berman** - [GitHub](https://github.com/djberman87) | [LinkedIn](https://www.linkedin.com/in/djberman/)
-- **Gemini 3** - AI Co-Auteur & Architect
+- **Gemini 3** - AI Architect & Co-Auteur
 
 ### Licentie
-Dit project valt onder de **MIT Licentie**. Zie het [LICENSE](./LICENSE) bestand voor details.
-
----
-
-> *Geoptimaliseerd voor Model Context Protocol door Gemini 3 op 2 januari 2026.*
+Gelicenseerd onder de **MIT Licentie**. Zie [LICENSE](./LICENSE) voor details.

@@ -21,14 +21,20 @@ RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json"
 @mcp.tool()
 async def get_vehicle_info(kenteken: str) -> str:
     """
-    Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.
+    Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (zoals auto, motor, vrachtwagen) via de RDW Open Data API.
+    
+    Gebruik deze tool voor vragen over:
+    - Basisdetails: Merk, model (handelsbenaming), kleur, voertuigsoort.
+    - Status: Vervaldatum APK, of het voertuig gestolen is, of er een WOK-status (Wacht Op Keuren) is.
+    - Techniek: Motorinhoud, aantal cilinders, massa rijklaar, trekvermogen.
+    - Milieu: Brandstofverbruik, CO2-uitstoot, emissieklasse.
     
     Args:
-        kenteken: Het kenteken van het voertuig (bijv. '41TDK8', '41-TDK-8' of '23BGV9'). 
-                  Tekens worden automatisch genormaliseerd (hoofdletters, streepjes verwijderd).
+        kenteken: Het Nederlandse kenteken (bijv. '41TDK8', '41-TDK-8' of 'MX-XG-82'). 
+                  Spaties en streepjes worden automatisch verwijderd.
     
     Returns:
-        Een JSON-string met voertuiggegevens zoals merk, model, brandstofverbruik, vervaldatum APK, etc.
+        Een JSON-geformatteerde string met alle beschikbare gegevens van de RDW. De veldnamen zijn in het Nederlands.
     """
     # Kenteken opschonen: hoofdletters en streepjes verwijderen
     clean_kenteken = kenteken.upper().replace("-", "").replace(" ", "")
@@ -59,13 +65,20 @@ async def get_vehicle_info(kenteken: str) -> str:
 @mcp.tool()
 async def get_vehicle_axles(kenteken: str) -> str:
     """
-    Haal informatie op over de assen van een voertuig op basis van het kenteken.
+    Haal specifieke informatie op over de assen van een Nederlands voertuig via de RDW Open Data API.
+    
+    Gebruik deze tool specifiek voor:
+    - Technische as-details: Aantal assen, aslast (maximaal toegestane massa), aangedreven assen.
+    - Configuratie: Afstand tussen de assen, spoorbreedte.
+    
+    Let op: Deze dataset is vooral relevant voor vrachtwagens, aanhangers en zware voertuigen. 
+    Voor lichte personenauto's is deze informatie vaak niet beschikbaar in deze specifieke dataset.
     
     Args:
-        kenteken: Het kenteken van het voertuig (bijv. '41TDK8').
+        kenteken: Het Nederlandse kenteken (bijv. '23-BGV-9').
     
     Returns:
-        Een JSON-string met as-informatie zoals aantal assen, aslast, aangedreven assen, etc.
+        Een JSON-geformatteerde lijst met informatie per as. Veldnamen zijn in het Nederlands.
     """
     clean_kenteken = kenteken.upper().replace("-", "").replace(" ", "")
     
@@ -90,9 +103,6 @@ async def get_vehicle_axles(kenteken: str) -> str:
             return "Fout: De RDW API reageerde niet binnen de tijdlimiet."
         except Exception as e:
             return f"Er is een onverwachte fout opgetreden: {str(e)}"
-
-if __name__ == "__main__":
-    mcp.run()
 
 if __name__ == "__main__":
     mcp.run()

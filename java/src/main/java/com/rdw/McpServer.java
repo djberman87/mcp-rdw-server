@@ -79,8 +79,8 @@ public class McpServer {
         JsonObject result = new JsonObject();
         JsonArray tools = new JsonArray();
         
-        tools.add(createToolObject("get_vehicle_info", "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken."));
-        tools.add(createToolObject("get_vehicle_axles", "Haal informatie op over de assen van een voertuig op basis van het kenteken."));
+        tools.add(createToolObject("get_vehicle_info", "Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (auto, motor, vrachtwagen) via de RDW Open Data API. Gebruik deze tool voor merk, model, APK en techniek. Output is in het Nederlands."));
+        tools.add(createToolObject("get_vehicle_axles", "Haal specifieke informatie op over de assen van een Nederlands voertuig (vooral vrachtwagens). Bevat details over aslast en aangedreven assen. Output is in het Nederlands."));
         
         result.add("tools", tools);
         return result;
@@ -96,7 +96,7 @@ public class McpServer {
         JsonObject props = new JsonObject();
         JsonObject kentekenProp = new JsonObject();
         kentekenProp.addProperty("type", "string");
-        kentekenProp.addProperty("description", "Het kenteken van het voertuig (bijv. '41TDK8').");
+        kentekenProp.addProperty("description", "Het Nederlandse kenteken (bijv. '41TDK8').");
         props.add("kenteken", kentekenProp);
         schema.add("properties", props);
         JsonArray required = new JsonArray();

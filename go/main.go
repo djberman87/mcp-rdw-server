@@ -51,22 +51,22 @@ func main() {
 				"tools": []map[string]interface{}{
 					{
 						"name":        "get_vehicle_info",
-						"description": "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.",
+						"description": "Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (auto, motor, vrachtwagen) via de RDW Open Data API. Gebruik deze tool voor vragen over merk, model, APK-vervaldatum, motorinhoud en milieu-info. Output is in het Nederlands.",
 						"inputSchema": map[string]interface{}{
 							"type": "object",
 							"properties": map[string]interface{}{
-								"kenteken": map[string]string{"type": "string", "description": "Het kenteken van het voertuig (bijv. '41TDK8')."},
+								"kenteken": map[string]string{"type": "string", "description": "Het Nederlandse kenteken (bijv. '41TDK8')."},
 							},
 							"required": []string{"kenteken"},
 						},
 					},
 					{
 						"name":        "get_vehicle_axles",
-						"description": "Haal informatie op over de assen van een voertuig op basis van het kenteken.",
+						"description": "Haal specifieke informatie op over de assen van een Nederlands voertuig (vooral voor vrachtwagens/aanhangers). Bevat details over aslast en aangedreven assen. Output is in het Nederlands.",
 						"inputSchema": map[string]interface{}{
 							"type": "object",
 							"properties": map[string]interface{}{
-								"kenteken": map[string]string{"type": "string", "description": "Het kenteken van het voertuig (bijv. '41TDK8')."},
+								"kenteken": map[string]string{"type": "string", "description": "Het Nederlandse kenteken (bijv. '23-BGV-9')."},
 							},
 							"required": []string{"kenteken"},
 						},

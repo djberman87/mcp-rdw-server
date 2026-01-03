@@ -8,7 +8,7 @@
     "start": "node build/index.js",
     "dev": "ts-node src/index.ts"
   },
-  "author": "Dirk-Jan Berman & Gemini 3",
+  "author": "Dirk-Jan Berman (GitHub: djberman87, LinkedIn: djberman) & Gemini 3",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",

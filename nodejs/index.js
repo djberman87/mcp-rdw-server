@@ -29,13 +29,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "get_vehicle_info",
-        description: "Haal gedetailleerde technische informatie op over een Nederlands voertuig op basis van het kenteken.",
+        description: "Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (auto, motor, vrachtwagen) via de RDW Open Data API. Gebruik deze tool voor vragen over merk, model, APK-vervaldatum, motorinhoud, gewicht en milieu-informatie. De output is in het Nederlands.",
         inputSchema: {
           type: "object",
           properties: {
             kenteken: {
               type: "string",
-              description: "Het kenteken van het voertuig (bijv. '41TDK8', '41-TDK-8'). Tekens worden automatisch genormaliseerd.",
+              description: "Het Nederlandse kenteken (bijv. '41TDK8', '41-TDK-8'). Tekens worden automatisch genormaliseerd.",
             },
           },
           required: ["kenteken"],
@@ -43,13 +43,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_vehicle_axles",
-        description: "Haal informatie op over de assen van een voertuig op basis van het kenteken.",
+        description: "Haal specifieke informatie op over de assen van een Nederlands voertuig (vooral relevant voor vrachtwagens en aanhangers). Bevat details over aslast en aangedreven assen. De output is in het Nederlands.",
         inputSchema: {
           type: "object",
           properties: {
             kenteken: {
               type: "string",
-              description: "Het kenteken van het voertuig (bijv. '41TDK8'). Tekens worden automatisch genormaliseerd.",
+              description: "Het Nederlandse kenteken (bijv. '23-BGV-9'). Tekens worden automatisch genormaliseerd.",
             },
           },
           required: ["kenteken"],
