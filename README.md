@@ -65,6 +65,18 @@ Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het absolute pad
 }
 ```
 
+### Voorbeeld (Docker - GEEN installatie nodig)
+```json
+{
+  "mcpServers": {
+    "rdw-info": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "ghcr.io/djberman87/mcp-rdw-server:latest"]
+    }
+  }
+}
+```
+
 ---
 
 ## 💡 Voorbeeld Prompts
