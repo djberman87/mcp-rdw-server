@@ -1,23 +1,39 @@
 # 🚗 RDW Vehicle Info MCP Server
 
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compliance](https://img.shields.io/badge/MCP-Compliant-blue.svg)](https://modelcontextprotocol.io)
 [![Polyglot](https://img.shields.io/badge/Polyglot-8%20Languages-green.svg)](#-handmatige-setup-polyglot)
 [![Docker](https://img.shields.io/badge/Docker-GHCR-blue.svg)](https://github.com/djberman87/mcp-rdw-server/pkgs/container/mcp-rdw-server)
-[![Dutch Language](https://img.shields.io/badge/Taal-Nederlands-orange.svg)](#)
 
 Een professionele **Model Context Protocol (MCP)** server die directe toegang biedt tot de openbare voertuiggegevens van de Nederlandse **RDW (Rijksdienst voor het Wegverkeer)**. 
 
-Met deze server kan een LLM (zoals Claude) technische en administratieve details van voertuigen opvragen puur op basis van een kenteken. Ideaal voor automotive applicaties, verzekeringschecks of technische data-analyse.
+Versie 2.0.0 introduceert een volledige relationele implementatie, waarbij data uit verschillende RDW-datasets wordt gekoppeld op basis van het kenteken.
 
 ---
 
-## ✨ Features
+## ✨ Features (v2.0.0 Tools)
 
-- **`get_vehicle_info`**: Haal uitgebreide data op (Merk, Model, APK, Brandstof, CO2, Massa, etc.).
-- **`get_vehicle_axles`**: Specifieke as-informatie (Aslast, Aangedreven assen), essentieel voor logistiek/vrachtverkeer.
-- **Slimme Normalisatie**: Kentekens zoals `41-TDK-8`, `41TDK8` of `mx xg 82` worden automatisch gecorrigeerd.
-- **Polyglot Power**: Dezelfde krachtige functionaliteit geïmplementeerd in 8 verschillende programmeertalen.
+### 1. Basisinformatie & Status
+- **`get_vehicle_info`**: Algemene voertuiggegevens (Merk, Model, APK, etc.).
+- **`get_odometer_judgment`**: Decodeert tellerstand-codes naar tekstuele uitleg (logisch/onlogisch).
+
+### 2. Technische Datasets
+- **`get_vehicle_fuel`**: Brandstofverbruik en emissiegegevens.
+- **`get_vehicle_axles`**: As-informatie en lasten (essentieel voor zwaar vervoer).
+- **`get_vehicle_remarks`**: Bijzonderheden en specifieke registraties.
+- **`get_vehicle_subcategory`**: Specifieke voertuig-subcategorie.
+- **`get_vehicle_tracks`**: Informatie over rupsband-sets.
+
+### 3. Carrosserie Cluster (Relationeel)
+- **`get_vehicle_bodywork`**: Combineert data uit drie verschillende datasets (Basis, Specifiek, Klasse) tot één compleet carrosserie-object.
+
+---
+
+## 🔗 Relationele Structuur
+De RDW-data is relationeel opgebouwd. In Versie 2.0.0 worden de volgende koppelingen automatisch afgehandeld:
+- **Directe koppeling:** De meeste tools halen data op via een directe query op het kenteken.
+- **Geaggregeerde Carrosserie:** De tool `get_vehicle_bodywork` combineert data uit `vezc-m2t6` (Carrosserie), `jhie-znh9` (Specifiek) en `kmfi-hrps` (Klasse) om een integraal beeld van het voertuig te geven.
 
 ---
 

@@ -1,6 +1,7 @@
 /**
  * RDW Vehicle Info MCP Server (Go)
  * Authors: Dirk-Jan Berman & Gemini 3
+ * Version: 2.0.0
  * License: MIT
  */
 package main
@@ -13,10 +14,21 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
-const RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json"
-const RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json"
+var ENDPOINTS = map[string]string{
+	"info":              "https://opendata.rdw.nl/resource/m9d7-ebf2.json",
+	"odometer":          "https://opendata.rdw.nl/resource/v3i9-dpe8.json",
+	"fuel":              "https://opendata.rdw.nl/resource/8ys7-d773.json",
+	"axles":             "https://opendata.rdw.nl/resource/3huj-srit.json",
+	"remarks":           "https://opendata.rdw.nl/resource/7ug8-2dtt.json",
+	"subcategory":       "https://opendata.rdw.nl/resource/wj78-6f6f.json",
+	"tracks":            "https://opendata.rdw.nl/resource/p693-vshn.json",
+	"bodywork":          "https://opendata.rdw.nl/resource/vezc-m2t6.json",
+	"bodywork_specific": "https://opendata.rdw.nl/resource/jhie-znh9.json",
+	"vehicle_class":     "https://opendata.rdw.nl/resource/kmfi-hrps.json",
+}
 
 type Request struct {
 	JSONRPC string          `json:"jsonrpc"`
@@ -28,6 +40,25 @@ type Request struct {
 type CallToolParams struct {
 	Name      string            `json:"name"`
 	Arguments map[string]string `json:"arguments"`
+}
+
+func normalizeKenteken(kenteken string) string {
+	k := strings.ToUpper(kenteken)
+	k = strings.ReplaceAll(k, "-", "")
+	k = strings.ReplaceAll(k, " ", "")
+	return k
+}
+
+func fetchRdwData(endpoint string, kenteken string) []interface{} {
+	resp, err := http.Get(fmt.Sprintf("%s?kenteken=%s", endpoint, kenteken))
+	if err != nil {
+		return nil
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	var data []interface{}
+	json.Unmarshal(body, &data)
+	return data
 }
 
 func main() {
@@ -46,68 +77,79 @@ func main() {
 			continue
 		}
 
-		if req.Method == "list_tools" {
+		if req.Method == "initialize" {
+			sendResponse(req.ID, map[string]interface{}{
+				"protocolVersion": "2024-11-05",
+				"capabilities":    map[string]interface{}{"tools": map[string]interface{}{}},
+				"serverInfo":       map[string]string{"name": "rdw-server-go", "version": "2.0.0"},
+			})
+		} else if req.Method == "list_tools" {
 			sendResponse(req.ID, map[string]interface{}{
 				"tools": []map[string]interface{}{
-					{
-						"name":        "get_vehicle_info",
-						"description": "Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (auto, motor, vrachtwagen) via de RDW Open Data API. Gebruik deze tool voor vragen over merk, model, APK-vervaldatum, motorinhoud en milieu-info. Output is in het Nederlands.",
-						"inputSchema": map[string]interface{}{
-							"type": "object",
-							"properties": map[string]interface{}{
-								"kenteken": map[string]string{"type": "string", "description": "Het Nederlandse kenteken (bijv. '41TDK8')."},
-							},
-							"required": []string{"kenteken"},
-						},
-					},
-					{
-						"name":        "get_vehicle_axles",
-						"description": "Haal specifieke informatie op over de assen van een Nederlands voertuig (vooral voor vrachtwagens/aanhangers). Bevat details over aslast en aangedreven assen. Output is in het Nederlands.",
-						"inputSchema": map[string]interface{}{
-							"type": "object",
-							"properties": map[string]interface{}{
-								"kenteken": map[string]string{"type": "string", "description": "Het Nederlandse kenteken (bijv. '23-BGV-9')."},
-							},
-							"required": []string{"kenteken"},
-						},
-					},
+					{"name": "get_vehicle_info", "description": "Haal algemene voertuiggegevens op (Merk, Model, APK, etc.). Dataset: m9d7-ebf2"},
+					{"name": "get_odometer_judgment", "description": "Decodeert tellerstand-codes naar tekstuele uitleg (logisch/onlogisch). Dataset: v3i9-dpe8"},
+					{"name": "get_vehicle_fuel", "description": "Brandstofverbruik en emissiegegevens. Dataset: 8ys7-d773"},
+					{"name": "get_vehicle_axles", "description": "Informatie over de assen van een voertuig (aslasten, aantal assen). Dataset: 3huj-srit"},
+					{"name": "get_vehicle_remarks", "description": "Bijzonderheden en specifieke registraties (bijv. taxi, ambulance). Dataset: 7ug8-2dtt"},
+					{"name": "get_vehicle_subcategory", "description": "Specifieke voertuig-subcategorie. Dataset: wj78-6f6f"},
+					{"name": "get_vehicle_tracks", "description": "Informatie over rupsband-sets. Dataset: p693-vshn"},
+					{"name": "get_vehicle_bodywork", "description": "Gecombineerde carrosseriegegevens uit meerdere RDW datasets. Datasets: vezc-m2t6, jhie-znh9, kmfi-hrps"},
 				},
 			})
 		} else if req.Method == "call_tool" {
 			var params CallToolParams
 			json.Unmarshal(req.Params, &params)
 
-			kenteken := strings.ToUpper(strings.ReplaceAll(params.Arguments["kenteken"], "-", ""))
-			kenteken = strings.ReplaceAll(kenteken, " ", "")
-
-			endpoint := RDW_API_ENDPOINT
-			if params.Name == "get_vehicle_axles" {
-				endpoint = RDW_AXLES_API_ENDPOINT
-			}
-
-			resp, err := http.Get(fmt.Sprintf("%s?kenteken=%s", endpoint, kenteken))
+			kenteken := normalizeKenteken(params.Arguments["kenteken"])
 			var content string
-			if err != nil {
-				content = fmt.Sprintf("Fout bij verbinden met RDW: %v", err)
-			} else {
-				defer resp.Body.Close()
-				body, _ := io.ReadAll(resp.Body)
-				var data []interface{}
-				json.Unmarshal(body, &data)
 
-				if len(data) == 0 {
-					if params.Name == "get_vehicle_info" {
-						content = fmt.Sprintf("Geen voertuig gevonden voor kenteken: %s", kenteken)
-					} else {
-						content = fmt.Sprintf("Geen as-informatie gevonden voor kenteken: %s. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.", kenteken)
-					}
+			if params.Name == "get_vehicle_bodywork" {
+				var wg sync.WaitGroup
+				var bodywork, specific, vehicleClass []interface{}
+				wg.Add(3)
+				go func() { defer wg.Done(); bodywork = fetchRdwData(ENDPOINTS["bodywork"], kenteken) }()
+				go func() { defer wg.Done(); specific = fetchRdwData(ENDPOINTS["bodywork_specific"], kenteken) }()
+				go func() { defer wg.Done(); vehicleClass = fetchRdwData(ENDPOINTS["vehicle_class"], kenteken) }()
+				wg.Wait()
+
+				combined := map[string]interface{}{
+					"kenteken":              kenteken,
+					"carrosserie":           bodywork,
+					"carrosserie_specifiek": specific,
+					"voertuigklasse":        vehicleClass,
+				}
+				if len(bodywork) == 0 && len(specific) == 0 && len(vehicleClass) == 0 {
+					content = fmt.Sprintf("Geen carrosseriegegevens gevonden voor kenteken: %s", kenteken)
 				} else {
-					var result interface{} = data
-					if params.Name == "get_vehicle_info" {
-						result = data[0]
-					}
-					prettyJSON, _ := json.MarshalIndent(result, "", "  ")
+					prettyJSON, _ := json.MarshalIndent(combined, "", "  ")
 					content = string(prettyJSON)
+				}
+			} else {
+				endpointMap := map[string]string{
+					"get_vehicle_info":        ENDPOINTS["info"],
+					"get_odometer_judgment":   ENDPOINTS["odometer"],
+					"get_vehicle_fuel":        ENDPOINTS["fuel"],
+					"get_vehicle_axles":       ENDPOINTS["axles"],
+					"get_vehicle_remarks":     ENDPOINTS["remarks"],
+					"get_vehicle_subcategory": ENDPOINTS["subcategory"],
+					"get_vehicle_tracks":      ENDPOINTS["tracks"],
+				}
+
+				endpoint, ok := endpointMap[params.Name]
+				if !ok {
+					content = "Tool niet gevonden"
+				} else {
+					data := fetchRdwData(endpoint, kenteken)
+					if len(data) == 0 {
+						content = fmt.Sprintf("Geen gegevens gevonden voor kenteken: %s", kenteken)
+					} else {
+						var result interface{} = data
+						if params.Name == "get_vehicle_info" || params.Name == "get_odometer_judgment" {
+							result = data[0]
+						}
+						prettyJSON, _ := json.MarshalIndent(result, "", "  ")
+						content = string(prettyJSON)
+					}
 				}
 			}
 

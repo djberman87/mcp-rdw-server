@@ -1,6 +1,7 @@
 /**
  * RDW Vehicle Info MCP Server (TypeScript)
  * Authors: Dirk-Jan Berman & Gemini 3
+ * Version: 2.0.0
  * License: MIT
  */
 
@@ -14,7 +15,7 @@ import {
 const server = new Server(
   {
     name: "rdw-server-ts",
-    version: "1.3.0",
+    version: "2.0.0",
   },
   {
     capabilities: {
@@ -23,36 +24,119 @@ const server = new Server(
   }
 );
 
-const RDW_API_ENDPOINT = "https://opendata.rdw.nl/resource/m9d7-ebf2.json";
-const RDW_AXLES_API_ENDPOINT = "https://opendata.rdw.nl/resource/3huj-srit.json";
+const ENDPOINTS = {
+  info: "https://opendata.rdw.nl/resource/m9d7-ebf2.json",
+  odometer: "https://opendata.rdw.nl/resource/v3i9-dpe8.json",
+  fuel: "https://opendata.rdw.nl/resource/8ys7-d773.json",
+  axles: "https://opendata.rdw.nl/resource/3huj-srit.json",
+  remarks: "https://opendata.rdw.nl/resource/7ug8-2dtt.json",
+  subcategory: "https://opendata.rdw.nl/resource/wj78-6f6f.json",
+  tracks: "https://opendata.rdw.nl/resource/p693-vshn.json",
+  bodywork: "https://opendata.rdw.nl/resource/vezc-m2t6.json",
+  bodywork_specific: "https://opendata.rdw.nl/resource/jhie-znh9.json",
+  vehicle_class: "https://opendata.rdw.nl/resource/kmfi-hrps.json"
+};
+
+const normalizeKenteken = (kenteken: string) => kenteken.toUpperCase().replace(/[-\s]/g, "");
+
+async function fetchRdwData(endpoint: string, kenteken: string): Promise<any[]> {
+  const fetch = (await import("node-fetch")).default;
+  try {
+    const response = await fetch(`${endpoint}?kenteken=${kenteken}`);
+    if (!response.ok) return [];
+    return (await response.json()) as any[];
+  } catch (error) {
+    return [];
+  }
+}
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
         name: "get_vehicle_info",
-        description: "Haal uitgebreide technische en administratieve informatie op over een Nederlands voertuig (auto, motor, vrachtwagen) via de RDW Open Data API. Gebruik deze tool voor vragen over merk, model, APK-vervaldatum, motorinhoud, gewicht en milieu-informatie. De output is in het Nederlands.",
+        description: "Haal algemene voertuiggegevens op (Merk, Model, APK, etc.). Dataset: m9d7-ebf2",
         inputSchema: {
           type: "object",
           properties: {
-            kenteken: {
-              type: "string",
-              description: "Het Nederlandse kenteken (bijv. '41TDK8', '41-TDK-8'). Tekens worden automatisch genormaliseerd.",
-            },
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_odometer_judgment",
+        description: "Decodeert tellerstand-codes naar tekstuele uitleg (logisch/onlogisch). Dataset: v3i9-dpe8",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_vehicle_fuel",
+        description: "Brandstofverbruik en emissiegegevens. Dataset: 8ys7-d773",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
           },
           required: ["kenteken"],
         },
       },
       {
         name: "get_vehicle_axles",
-        description: "Haal specifieke informatie op over de assen van een Nederlands voertuig (vooral relevant voor vrachtwagens en aanhangers). Bevat details over aslast en aangedreven assen. De output is in het Nederlands.",
+        description: "Informatie over de assen van een voertuig (aslasten, aantal assen). Dataset: 3huj-srit",
         inputSchema: {
           type: "object",
           properties: {
-            kenteken: {
-              type: "string",
-              description: "Het Nederlandse kenteken (bijv. '23-BGV-9'). Tekens worden automatisch genormaliseerd.",
-            },
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_vehicle_remarks",
+        description: "Bijzonderheden en specifieke registraties (bijv. taxi, ambulance). Dataset: 7ug8-2dtt",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_vehicle_subcategory",
+        description: "Specifieke voertuig-subcategorie. Dataset: wj78-6f6f",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_vehicle_tracks",
+        description: "Informatie over rupsband-sets. Dataset: p693-vshn",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
+          },
+          required: ["kenteken"],
+        },
+      },
+      {
+        name: "get_vehicle_bodywork",
+        description: "Gecombineerde carrosseriegegevens uit meerdere RDW datasets. Datasets: vezc-m2t6, jhie-znh9, kmfi-hrps",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kenteken: { type: "string", description: "Het Nederlandse kenteken." },
           },
           required: ["kenteken"],
         },
@@ -62,94 +146,60 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const fetch = (await import("node-fetch")).default;
   const { name } = request.params;
   const args = request.params.arguments as { kenteken: string };
-  const kenteken = args.kenteken.toUpperCase().replace(/[-\s]/g, "");
+  const kenteken = normalizeKenteken(args.kenteken);
 
-  if (name === "get_vehicle_info") {
-    try {
-      const response = await fetch(`${RDW_API_ENDPOINT}?kenteken=${kenteken}`);
-      if (!response.ok) {
-        throw new Error(`RDW API error: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = (await response.json()) as any[];
-      
-      if (data.length === 0) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Geen voertuig gevonden voor kenteken: ${kenteken}`,
-            },
-          ],
-        };
-      }
-      
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(data[0], null, 2),
-          },
-        ],
-      };
-    } catch (error: any) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Fout bij het ophalen van voertuiggegevens: ${error.message}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  }
+  try {
+    if (name === "get_vehicle_bodywork") {
+      const [bodywork, specific, vehicleClass] = await Promise.all([
+        fetchRdwData(ENDPOINTS.bodywork, kenteken),
+        fetchRdwData(ENDPOINTS.bodywork_specific, kenteken),
+        fetchRdwData(ENDPOINTS.vehicle_class, kenteken)
+      ]);
 
-  if (name === "get_vehicle_axles") {
-    try {
-      const response = await fetch(`${RDW_AXLES_API_ENDPOINT}?kenteken=${kenteken}`);
-      if (!response.ok) {
-        throw new Error(`RDW API error: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = (await response.json()) as any[];
-      
-      if (data.length === 0) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Geen as-informatie gevonden voor kenteken: ${kenteken}. Let op: lichte personenauto's hebben vaak geen vermelding in deze dataset.`,
-            },
-          ],
-        };
-      }
-      
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
+      const combined = {
+        kenteken,
+        carrosserie: bodywork,
+        carrosserie_specifiek: specific,
+        voertuigklasse: vehicleClass
       };
-    } catch (error: any) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Fout bij het ophalen van as-informatie: ${error.message}`,
-          },
-        ],
-        isError: true,
-      };
+
+      if (bodywork.length === 0 && specific.length === 0 && vehicleClass.length === 0) {
+        return { content: [{ type: "text", text: `Geen carrosseriegegevens gevonden voor kenteken: ${kenteken}` }] };
+      }
+
+      return { content: [{ type: "text", text: JSON.stringify(combined, null, 2) }] };
     }
+
+    const endpointMap: Record<string, string> = {
+      get_vehicle_info: ENDPOINTS.info,
+      get_odometer_judgment: ENDPOINTS.odometer,
+      get_vehicle_fuel: ENDPOINTS.fuel,
+      get_vehicle_axles: ENDPOINTS.axles,
+      get_vehicle_remarks: ENDPOINTS.remarks,
+      get_vehicle_subcategory: ENDPOINTS.subcategory,
+      get_vehicle_tracks: ENDPOINTS.tracks
+    };
+
+    const endpoint = endpointMap[name];
+    if (!endpoint) throw new Error("Tool niet gevonden");
+
+    const data = await fetchRdwData(endpoint, kenteken);
+    
+    if (data.length === 0) {
+      return { content: [{ type: "text", text: `Geen gegevens gevonden voor kenteken: ${kenteken}` }] }]};
+    }
+
+    const result = (name === "get_vehicle_info" || name === "get_odometer_judgment") ? data[0] : data;
+
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  } catch (error: any) {
+    return {
+      content: [{ type: "text", text: `Fout bij het ophalen van gegevens: ${error.message}` }],
+      isError: true,
+    };
   }
-  
-  throw new Error("Tool niet gevonden");
 });
 
 async function main() {
