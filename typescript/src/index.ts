@@ -14,7 +14,7 @@ import {
 const server = new Server(
   {
     name: "rdw-server-ts",
-    version: "1.2.7",
+    version: "1.3.0",
   },
   {
     capabilities: {
