@@ -20,6 +20,7 @@ venv/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
+.npmbin/
 
 # Language Specific Compiled Files
 *.exe
@@ -32,6 +33,7 @@ __pycache__/
 *.jar
 *.war
 *.tsbuildinfo
+*.pnpm-debug.log*
 
 # Note: We EXPLICITLY do NOT ignore lock-files like package-lock.json, 
 # Cargo.lock, go.sum, and composer.lock because this is a server application.
