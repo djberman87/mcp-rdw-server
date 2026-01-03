@@ -108,6 +108,7 @@ Zodra de server actief is, kun je Claude vragen stellen zoals:
 - *"Hoeveel zitplaatsen heeft de touringcar met kenteken ... en wat is de geregistreerde hoogte van het voertuig?"*
 - *"Wat zijn de milieugegevens (emissieklasse en brandstofverbruik) van de 23-BGV-9?"*
 - *"Geef een overzicht van alle technische bijzonderheden (remarks) voor kenteken ..."*
+- *"Ik moet een TomTom GO Professional instellen. Wat is de toegestane maximummassa en de wettelijk toegestane maximum aslast van de zwaarste as voor de vrachtwagen met kenteken ...?"*
 
 ---
 
