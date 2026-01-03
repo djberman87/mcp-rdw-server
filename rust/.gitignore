@@ -1,2 +1,2 @@
 target/
-Cargo.lock
+# Cargo.lock is NOT ignored to ensure reproducible builds

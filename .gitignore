@@ -1,4 +1,13 @@
-# Generic & IDEs
+# IDEs & System Files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak
+*.log
+Thumbs.db
+
+# Generic Build & Dependency Folders (Recursive)
 node_modules/
 dist/
 build/
@@ -9,43 +18,21 @@ publish/
 .venv/
 venv/
 __pycache__/
-*.log
+.pytest_cache/
+.mypy_cache/
+
+# Language Specific Compiled Files
 *.exe
 *.dll
 *.so
 *.dylib
-.DS_Store
-.vscode/
-.idea/
-*.swp
-*.bak
+*.py[cod]
+*$py.class
+*.class
+*.jar
+*.war
+*.tsbuildinfo
 
-# Python
-.pytest_cache/
-.mypy_cache/
-*.pyc
-.python-version
-
-# Rust
-/rust/target/
-/rust/Cargo.lock
-
-# Go
-/go/go.sum
-rdw-server-*
-
-# .NET
-/dotnet/bin/
-/dotnet/obj/
-*.user
-*.suo
-
-# Java
-/java/target/
-.classpath
-.project
-.settings/
-
-# PHP
-/php/vendor/
-/php/composer.lock
+# Note: We EXPLICITLY do NOT ignore lock-files like package-lock.json, 
+# Cargo.lock, go.sum, and composer.lock because this is a server application.
+# Tracking these ensures reproducible builds.
