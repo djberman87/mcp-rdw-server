@@ -2,33 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compliance](https://img.shields.io/badge/MCP-Compliant-blue.svg)](https://modelcontextprotocol.io)
-[![Polyglot](https://img.shields.io/badge/Polyglot-8%20Languages-green.svg)](#-ondersteunde-talen)
+[![Polyglot](https://img.shields.io/badge/Polyglot-8%20Languages-green.svg)](#-handmatige-setup-polyglot)
 [![Docker](https://img.shields.io/badge/Docker-GHCR-blue.svg)](https://github.com/djberman87/mcp-rdw-server/pkgs/container/mcp-rdw-server)
 [![Dutch Language](https://img.shields.io/badge/Taal-Nederlands-orange.svg)](#)
 
 Een professionele **Model Context Protocol (MCP)** server die directe toegang biedt tot de openbare voertuiggegevens van de Nederlandse **RDW (Rijksdienst voor het Wegverkeer)**. 
-
----
-
-## 🚀 Distributie & Installatie
-
-Dit project biedt verschillende manieren om de MCP-server te draaien.
-
-### 1. Kant-en-klare Binaries (Aanbevolen)
-Geen programmeeromgeving nodig! Download de binary voor jouw OS (Windows, macOS, Linux) van de **[Releases](https://github.com/djberman87/mcp-rdw-server/releases)** pagina.
-*   Beschikbaar voor: **Go**, **Rust** en **.NET**.
-
-### 2. Docker (Geen installatie nodig)
-Draai de server direct via de GitHub Container Registry:
-```json
-"rdw-docker": {
-  "command": "docker",
-  "args": ["run", "-i", "--rm", "ghcr.io/djberman87/mcp-rdw-server:latest"]
-}
-```
-
-### 3. Handmatige Setup (Polyglot)
-Kies de taal die het beste past bij jouw omgeving:
 
 Met deze server kan een LLM (zoals Claude) technische en administratieve details van voertuigen opvragen puur op basis van een kenteken. Ideaal voor automotive applicaties, verzekeringschecks of technische data-analyse.
 
@@ -39,13 +17,29 @@ Met deze server kan een LLM (zoals Claude) technische en administratieve details
 - **`get_vehicle_info`**: Haal uitgebreide data op (Merk, Model, APK, Brandstof, CO2, Massa, etc.).
 - **`get_vehicle_axles`**: Specifieke as-informatie (Aslast, Aangedreven assen), essentieel voor logistiek/vrachtverkeer.
 - **Slimme Normalisatie**: Kentekens zoals `41-TDK-8`, `41TDK8` of `mx xg 82` worden automatisch gecorrigeerd.
-- **Polyglot Implementatie**: Beschikbaar in 8 verschillende programmeertalen.
+- **Polyglot Power**: Dezelfde krachtige functionaliteit geïmplementeerd in 8 verschillende programmeertalen.
 
 ---
 
-### 3. Handmatige Setup (Polyglot)
+## 🚀 Distributie & Installatie
 
-Kies de taal die het beste past bij jouw omgeving. Kloon de repo en volg de commando's:
+Dit project biedt verschillende manieren om de MCP-server te draaien, afhankelijk van je behoeften.
+
+### 1. Kant-en-klare Binaries (Snelst)
+Geen programmeeromgeving nodig. Download de binary voor jouw OS (Windows, macOS, Linux) van de **[Releases](https://github.com/djberman87/mcp-rdw-server/releases)** pagina.
+*   **Techniek:** Geoptimaliseerde builds in **Go**, **Rust** of **.NET**.
+
+### 2. Docker (Cloud & Server)
+Draai de server als container zonder lokale dependencies:
+```json
+"rdw-docker": {
+  "command": "docker",
+  "args": ["run", "-i", "--rm", "ghcr.io/djberman87/mcp-rdw-server:latest"]
+}
+```
+
+### 3. Handmatige Setup (Polyglot)
+Kies de taal die het beste past bij jouw stack. Kloon de repository en volg de commando's:
 
 | Taal | Directory | Setup Commando | Start Commando |
 | :--- | :--- | :--- | :--- |
@@ -62,9 +56,9 @@ Kies de taal die het beste past bij jouw omgeving. Kloon de repo en volg de comm
 
 ## 🛠️ Configuratie voor Claude Desktop
 
-Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het absolute pad naar de repository.
+Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het **absolute pad** naar de executable of het script.
 
-### Voorbeeld (Python)
+### Voorbeeld (Python/FastMCP)
 ```json
 {
   "mcpServers": {
@@ -91,7 +85,7 @@ Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het absolute pad
 ---
 
 ## 💡 Voorbeeld Prompts
-Zodra de server actief is in Claude, kun je vragen stellen als:
+Zodra de server actief is, kun je Claude vragen stellen zoals:
 - *"Wat is de APK vervaldatum van het voertuig met kenteken 41-TDK-8?"*
 - *"Geef me de technische specificaties (gewicht, motor) van de 23-BGV-9."*
 - *"Is het voertuig MX-XG-82 een motor of een auto?"*
@@ -101,8 +95,8 @@ Zodra de server actief is in Claude, kun je vragen stellen als:
 
 ## 📊 RDW Open Data
 Dit project maakt gebruik van de officiële Socrata API van de RDW.
-- **Hoofd Dataset:** [Open Data RDW: Gekentekende voertuigen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen/m9d7-ebf2)
-- **Assen Dataset:** [Open Data RDW: Gekentekende voertuigen assen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen-assen/3huj-srit)
+- **Hoofd Dataset:** [Gekentekende voertuigen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen/m9d7-ebf2)
+- **Assen Dataset:** [Gekentekende voertuigen assen](https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende-voertuigen-assen/3huj-srit)
 
 ---
 
