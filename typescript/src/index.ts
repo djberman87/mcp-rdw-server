@@ -188,7 +188,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const data = await fetchRdwData(endpoint, kenteken);
     
     if (data.length === 0) {
-      return { content: [{ type: "text", text: `Geen gegevens gevonden voor kenteken: ${kenteken}` }] }]};
+      return { content: [{ type: "text", text: `Geen gegevens gevonden voor kenteken: ${kenteken}` }] };
     }
 
     const result = (name === "get_vehicle_info" || name === "get_odometer_judgment") ? data[0] : data;
