@@ -1,6 +1,6 @@
 {
     "name": "rdw/mcp-server",
-    "version": "1.3.0",
+    "version": "2.0.0",
     "description": "PHP MCP server for RDW data",
     "type": "project",
     "require": {
