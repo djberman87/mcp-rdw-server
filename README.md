@@ -102,10 +102,12 @@ Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het **absolute p
 
 ## 💡 Voorbeeld Prompts
 Zodra de server actief is, kun je Claude vragen stellen zoals:
-- *"Wat is de APK vervaldatum van het voertuig met kenteken 41-TDK-8?"*
-- *"Geef me de technische specificaties (gewicht, motor) van de 23-BGV-9."*
-- *"Is het voertuig MX-XG-82 een motor of een auto?"*
-- *"Hoeveel assen heeft de vrachtwagen met kenteken ... en wat is de maximale aslast?"*
+- *"Is de tellerstand van het voertuig met kenteken 41-TDK-8 logisch verklaard volgens de RDW?"*
+- *"Geef me de uitgebreide carrosseriegegevens en de voertuigklasse van de BB-943-Z."*
+- *"Wat is de maximale aslast van de verschillende assen voor de vrachtwagen met kenteken ...?"*
+- *"Hoeveel zitplaatsen heeft de touringcar met kenteken ... en wat is de geregistreerde hoogte van het voertuig?"*
+- *"Wat zijn de milieugegevens (emissieklasse en brandstofverbruik) van de 23-BGV-9?"*
+- *"Geef een overzicht van alle technische bijzonderheden (remarks) voor kenteken ..."*
 
 ---
 
