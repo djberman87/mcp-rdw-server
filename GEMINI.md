@@ -22,4 +22,4 @@ The project serves as a showcase for how the Model Context Protocol (MCP) can be
 - **Deployment:** Docker (GHCR), GitHub Releases (Binaries).
 
 ---
-*Last updated by Gemini 3 on January 3, 2026.*
+*Last updated by Gemini 3 on January 3, 2026 (v2.0.0 Verified).*
