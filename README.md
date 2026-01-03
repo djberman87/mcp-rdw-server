@@ -3,9 +3,32 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Compliance](https://img.shields.io/badge/MCP-Compliant-blue.svg)](https://modelcontextprotocol.io)
 [![Polyglot](https://img.shields.io/badge/Polyglot-8%20Languages-green.svg)](#-ondersteunde-talen)
+[![Docker](https://img.shields.io/badge/Docker-GHCR-blue.svg)](https://github.com/djberman87/mcp-rdw-server/pkgs/container/mcp-rdw-server)
 [![Dutch Language](https://img.shields.io/badge/Taal-Nederlands-orange.svg)](#)
 
 Een professionele **Model Context Protocol (MCP)** server die directe toegang biedt tot de openbare voertuiggegevens van de Nederlandse **RDW (Rijksdienst voor het Wegverkeer)**. 
+
+---
+
+## 🚀 Distributie & Installatie
+
+Dit project biedt verschillende manieren om de MCP-server te draaien.
+
+### 1. Kant-en-klare Binaries (Aanbevolen)
+Geen programmeeromgeving nodig! Download de binary voor jouw OS (Windows, macOS, Linux) van de **[Releases](https://github.com/djberman87/mcp-rdw-server/releases)** pagina.
+*   Beschikbaar voor: **Go**, **Rust** en **.NET**.
+
+### 2. Docker (Geen installatie nodig)
+Draai de server direct via de GitHub Container Registry:
+```json
+"rdw-docker": {
+  "command": "docker",
+  "args": ["run", "-i", "--rm", "ghcr.io/djberman87/mcp-rdw-server:latest"]
+}
+```
+
+### 3. Handmatige Setup (Polyglot)
+Kies de taal die het beste past bij jouw omgeving:
 
 Met deze server kan een LLM (zoals Claude) technische en administratieve details van voertuigen opvragen puur op basis van een kenteken. Ideaal voor automotive applicaties, verzekeringschecks of technische data-analyse.
 
@@ -20,9 +43,9 @@ Met deze server kan een LLM (zoals Claude) technische en administratieve details
 
 ---
 
-## 🚀 Ondersteunde Talen & Setup
+### 3. Handmatige Setup (Polyglot)
 
-Dit project is ontworpen om te laten zien hoe MCP werkt over diverse ecosystemen.
+Kies de taal die het beste past bij jouw omgeving. Kloon de repo en volg de commando's:
 
 | Taal | Directory | Setup Commando | Start Commando |
 | :--- | :--- | :--- | :--- |
@@ -60,18 +83,6 @@ Voeg de server toe aan je `claude_desktop_config.json`. Gebruik het absolute pad
     "rdw-info": {
       "command": "node",
       "args": ["/PAD/NAAR/REPO/nodejs/index.js"]
-    }
-  }
-}
-```
-
-### Voorbeeld (Docker - GEEN installatie nodig)
-```json
-{
-  "mcpServers": {
-    "rdw-info": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "ghcr.io/djberman87/mcp-rdw-server:latest"]
     }
   }
 }
